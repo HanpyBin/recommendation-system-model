@@ -38,19 +38,27 @@ def get_cat_tuples_list(df, cat_cols):
 def train(model, data_iter, device, optimizer, loss, epochs=5):
     model = model.to(device)
     for epoch in range(epochs):
-        # l_sum = 0
+        # print(list(model.parameters())[0].data)
+        train_l_sum, train_acc_sum, n = 0.0, 0.0, 0
         for X, y in data_iter:
             X = X.to(device)
             y = y.to(device)
             output = model(X)
-            # print(output.squeeze(-1).shape)
+
+            # print(output.shape)
             # print(y.shape)
-            l = loss(output, y)
+            # print(output.data)
+            # print(y.data)
+            # print('*'*20)
+            l = loss(output, y).sum()
 
             optimizer.zero_grad()
             l.backward()
             optimizer.step()
-        print('epoch %d loss %.2f' % (epoch, l.item()))
+            n += y.shape[0]
+            train_acc_sum += (output.argmax(dim=1) == y).sum().item()
+            train_l_sum += l.item()
+        print('epoch %d loss %f train acc %f' % (epoch+1, train_l_sum / n, train_acc_sum / n))
 
 
 if __name__ == '__main__':
@@ -58,24 +66,29 @@ if __name__ == '__main__':
     data = preprocess_data(raw_data, num_cols, cat_cols)
     data['label'] = raw_data['label']
     # print(data)
-    device = torch.device('cpu' if torch.cuda.is_available() else 'cpu')
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
     num_col_len = len(num_cols)
     cat_col_len = len(cat_cols)
     emb_len = 4
     cat_tuples_list = get_cat_tuples_list(data, cat_cols)
 
-    model = DeepCrossing(input_dim=num_col_len+emb_len*cat_col_len, output_dim=1,
-                         hidden_dim=64, cat_tuples_list=cat_tuples_list)
+    model = DeepCrossing(input_dim=num_col_len+emb_len*cat_col_len, output_dim=2,
+                         hidden_dim=64, cat_tuples_list=cat_tuples_list, device=device)
     # model.to(device)
     # print(model)
     #
+    # print(type(model.named_parameters()))
+    # for name, param in model.named_parameters():
+    #     print(name, param.size())
+    # print('*'*20)
+    # print(model)
     X = torch.tensor(data.drop('label', axis=1).values, dtype=torch.float)
-    y = torch.tensor(data['label'].values, dtype=torch.long)
+    y = torch.tensor(data['label'].values, dtype=torch.float)
 
     dataset = Data.TensorDataset(X, y)
     data_iter = Data.DataLoader(dataset=dataset, batch_size=64, shuffle=True)
 
     optimizer = optim.Adam(params=model.parameters(), lr=0.01)
     loss = nn.CrossEntropyLoss()
-    train(model, data_iter, device, optimizer, loss)
+    train(model, data_iter, device, optimizer, loss, epochs=5)

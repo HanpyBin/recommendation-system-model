@@ -34,7 +34,7 @@ class DeepCrossing(nn.Module):
     """
     有三个残差块
     """
-    def __init__(self, input_dim, output_dim, hidden_dim, cat_tuples_list, emb_len=4):
+    def __init__(self, input_dim, output_dim, hidden_dim, cat_tuples_list, device, emb_len=4):
         # input_dim = len(num_cols) + emb_len*len(cat_cols)
         super(DeepCrossing, self).__init__()
         self.hidden_dim = hidden_dim
@@ -43,23 +43,30 @@ class DeepCrossing(nn.Module):
         self.emb_len = emb_len
 
         self.cat_col_num = len(cat_tuples_list)
-        self.embeddings = []
+        self.embeddings = nn.ModuleList()
         for fc in cat_tuples_list:
             self.embeddings.append(nn.Embedding(fc.vocab_size, self.emb_len))
-        self.residual_blocks = get_residual_blocks(self.input_dim, self.input_dim, 3)
+        self.residual_blocks = get_residual_blocks(self.input_dim, self.hidden_dim, 3)
         self.dense = nn.Linear(input_dim, output_dim)
+        self.act = nn.Sigmoid()
 
     def forward(self, x):
 
         cat_x = x[:, 0:self.cat_col_num]
         num_x = x[:, self.cat_col_num:]
+        # print(self.dense.weight)
+        # print(self.device)
         for i in range(self.cat_col_num):
             # print(cat_x[:, i].long())
+            # print(self.embeddings[i])
+            # print(cat_x[:, i].long())
+            # print(self.embeddings[i].weight)
             temp_tensor = self.embeddings[i](cat_x[:, i].long())
+            # print(num_x.data.shape)
             num_x = torch.cat((num_x, temp_tensor), dim=1)
 
         num_x = self.residual_blocks(num_x)
         num_x = self.dense(num_x)
-
+        num_x = self.act(num_x)
         return num_x
 
