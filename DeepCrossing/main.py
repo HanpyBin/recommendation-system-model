@@ -65,6 +65,7 @@ if __name__ == '__main__':
     raw_data, cat_cols, num_cols = load_data()
     data = preprocess_data(raw_data, num_cols, cat_cols)
     data['label'] = raw_data['label']
+    # data.to_csv('pytorch_data.csv', index=False)
     # print(data)
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
@@ -84,11 +85,12 @@ if __name__ == '__main__':
     # print('*'*20)
     # print(model)
     X = torch.tensor(data.drop('label', axis=1).values, dtype=torch.float)
-    y = torch.tensor(data['label'].values, dtype=torch.float)
-
+    y = torch.tensor(data['label'].values, dtype=torch.long)
+    # print(y)
     dataset = Data.TensorDataset(X, y)
-    data_iter = Data.DataLoader(dataset=dataset, batch_size=64, shuffle=True)
+    data_iter = Data.DataLoader(dataset=dataset, batch_size=10, shuffle=True)
 
-    optimizer = optim.Adam(params=model.parameters(), lr=0.01)
+    optimizer = optim.Adam(params=model.parameters(), lr=0.001)
+    # print(list(model.parameters()))
     loss = nn.CrossEntropyLoss()
-    train(model, data_iter, device, optimizer, loss, epochs=5)
+    train(model, data_iter, device, optimizer, loss, epochs=100)

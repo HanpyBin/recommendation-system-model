@@ -18,6 +18,7 @@ class ResidualBlock(nn.Module):
     def forward(self, x):
         inputs = x
         inputs = self.relu1(self.linear1(inputs))
+        # print(self.linear1.weight.data)
         inputs = self.relu2(self.linear2(inputs))
         inputs = self.relu3(inputs + x)
         return inputs
