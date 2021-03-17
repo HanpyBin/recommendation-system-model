@@ -3,7 +3,14 @@ import torch.nn as nn
 
 
 class ResidualBlock(nn.Module):
+    """
+    定义残差块
+    """
     def __init__(self, input_dim, hidden_dim):
+        """
+        :param input_dim: 输入维度
+        :param hidden_dim: 隐藏层维度
+        """
         super(ResidualBlock, self).__init__()
         self.input_dim = input_dim
         self.hidden_dim = hidden_dim
@@ -32,10 +39,16 @@ def get_residual_blocks(input_dim, output_dim, block_num):
 
 
 class DeepCrossing(nn.Module):
-    """
-    有三个残差块
-    """
     def __init__(self, input_dim, output_dim, hidden_dim, cat_tuples_list, device, emb_len=4):
+        """
+
+        :param input_dim: 输入维度
+        :param output_dim: 输出维度
+        :param hidden_dim: 残差块的隐藏层维度
+        :param cat_tuples_list:
+        :param device:
+        :param emb_len: embedding的表示长度
+        """
         # input_dim = len(num_cols) + emb_len*len(cat_cols)
         super(DeepCrossing, self).__init__()
         self.hidden_dim = hidden_dim

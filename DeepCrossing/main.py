@@ -9,6 +9,13 @@ from deepcrossing import DeepCrossing
 from collections import namedtuple
 
 def preprocess_data(df, num_cols, cat_cols):
+    """
+    进行数据预处理，包括缺失值处理和将类别进行编码
+    :param df: 待处理的dataframe
+    :param num_cols: list 存储数值列名
+    :param cat_cols: list 存储类别列名
+    :return: 处理完的数据
+    """
     df[num_cols] = df[num_cols].fillna(0.0)
     for col in num_cols:
         df[col] = df[col].apply(lambda x: np.log(x+1) if x > -1 else -1)
@@ -23,6 +30,10 @@ def preprocess_data(df, num_cols, cat_cols):
 
 
 def load_data():
+    """
+    加载数据
+    :return:
+    """
     raw_data = pd.read_csv('../../DeepRecommendationModel/code/data/criteo_sample.txt')
     cat_cols = [col for col in raw_data.columns if 'C' in col]
     num_cols = [col for col in raw_data.columns if 'I' in col]
@@ -30,6 +41,12 @@ def load_data():
     return raw_data, cat_cols, num_cols
 
 def get_cat_tuples_list(df, cat_cols):
+    """
+    将每个类别特征用一个namedtupe进行存储并用列表返回
+    :param df:
+    :param cat_cols:
+    :return:
+    """
     cat_tuples = namedtuple('cat_tuples', ('name', 'vocab_size'))
     cat_tuples_list = [cat_tuples(name=col, vocab_size=df[col].nunique()) for col in cat_cols]
     return cat_tuples_list
