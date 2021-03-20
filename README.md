@@ -14,7 +14,8 @@ def net(x):
 &emsp;有两个问题：1.为什么学习代码中的tf代码的batch_size可以是64。2.为什么将损失函数改为MSE又会变成弱(智商)分类器。
 
 ## W&D
-&emsp;准确率不上升，修改batch_size和lr也无济于事。。。I need help!!!
+&emsp;
+Get some bug to fix. 
 
 ## DeepFM
-&emsp;准确率不上升。。。
+Get some bug to fix.
