@@ -27,9 +27,9 @@ class WideDeep(nn.Module):
         self.deep_final_linear = nn.Linear(256, 1)
         self.relu = nn.ReLU()
         self.sigmoid = nn.Sigmoid()
-        self.dropout1 = nn.Dropout()
-        self.dropout2 = nn.Dropout()
-        self.dropout3 = nn.Dropout()
+        self.dropout1 = nn.Dropout(0.5)
+        self.dropout2 = nn.Dropout(0.3)
+        self.dropout3 = nn.Dropout(0.1)
 
         # Wide部分
         self.wide_embeddings = nn.ModuleList()
@@ -60,12 +60,12 @@ class WideDeep(nn.Module):
 
         ## deep层
         for i in range(self.cat_col_len):
-            num_x = torch.cat([num_x, self.deep_embeddings[i](cat_x[:, i].long())], axis=1)
+            num_x = torch.cat([num_x, self.deep_embeddings[i](cat_x[:, i].long())], dim=1)
         deep_output = self.dropout1(self.relu(self.deep_linear1(num_x)))
         deep_output = self.dropout2(self.relu(self.deep_linear2(deep_output)))
         deep_output = self.dropout3(self.relu(self.deep_linear3(deep_output)))
         deep_output = self.deep_final_linear(deep_output)
 
         # 结合wide&deep
-        output = self.sigmoid(self.final_linear(torch.cat([wide_output, deep_output], axis=1)))
+        output = self.sigmoid(self.final_linear(torch.cat([wide_output, deep_output], dim=1)))
         return output

@@ -70,10 +70,10 @@ if __name__ == '__main__':
     y = torch.tensor(train_data.label.values, dtype=torch.long)
 
     dataset = Data.TensorDataset(X, y)
-    data_iter = Data.DataLoader(dataset=dataset, batch_size=1, shuffle=True)
+    data_iter = Data.DataLoader(dataset=dataset, batch_size=4, shuffle=True)
 
     model = WideDeep(num_cols, cat_cols, cat_tuple_list)
     loss = nn.CrossEntropyLoss()
     optimizer = optim.Adam(model.parameters(), lr=0.001)
     # print(model)
-    train(model, data_iter, device, optimizer, loss, epochs=20)
+    train(model, data_iter, device, optimizer, loss, epochs=50)
