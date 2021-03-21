@@ -34,7 +34,9 @@ def load_data():
     加载数据
     :return:
     """
-    raw_data = pd.read_csv('../../DeepRecommendationModel/code/data/criteo_sample.txt')
+    # raw_data = pd.read_csv('../../DeepRecommendationModel/code/data/criteo_sample.txt')
+    raw_data = pd.read_csv('train.txt')
+    raw_data = raw_data.drop(['Id'], axis=1)
     cat_cols = [col for col in raw_data.columns if 'C' in col]
     num_cols = [col for col in raw_data.columns if 'I' in col]
 
@@ -81,7 +83,7 @@ def train(model, data_iter, device, optimizer, loss, epochs=5):
 if __name__ == '__main__':
     raw_data, cat_cols, num_cols = load_data()
     data = preprocess_data(raw_data, num_cols, cat_cols)
-    data['label'] = raw_data['label']
+    data['label'] = raw_data['Label']
     # data.to_csv('pytorch_data.csv', index=False)
     # print(data)
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -105,7 +107,7 @@ if __name__ == '__main__':
     y = torch.tensor(data['label'].values, dtype=torch.long)
     # print(y)
     dataset = Data.TensorDataset(X, y)
-    data_iter = Data.DataLoader(dataset=dataset, batch_size=10, shuffle=True)
+    data_iter = Data.DataLoader(dataset=dataset, batch_size=32, shuffle=True)
 
     optimizer = optim.Adam(params=model.parameters(), lr=0.001)
     # print(list(model.parameters()))

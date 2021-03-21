@@ -9,9 +9,10 @@ from sklearn.preprocessing import LabelEncoder
 from deepfm import DeepFM
 
 def load_data():
-    file_path = '../../DeepRecommendationModel/code/data/criteo_sample.txt'
+    # file_path = '../../DeepRecommendationModel/code/data/criteo_sample.txt'
+    file_path = 'train.txt'
     raw_data = pd.read_csv(file_path)
-
+    raw_data.drop(['Id'], axis=1, inplace=True)
     cat_cols = [col for col in raw_data.columns.values if 'C' in col]
     num_cols = [col for col in raw_data.columns.values if 'I' in col]
 
@@ -61,7 +62,8 @@ if __name__ == '__main__':
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     raw_data, cat_cols, num_cols = load_data()
     train_data = preprocess_data(raw_data, cat_cols, num_cols)
-    train_data['label'] = raw_data['label']
+    # train_data['label'] = raw_data['label']
+    train_data['label'] = raw_data['Label']
 
     cat_tuple_list = get_cat_tuple_list(train_data, cat_cols)
 
@@ -69,11 +71,11 @@ if __name__ == '__main__':
     y = torch.tensor(train_data.label.values, dtype=torch.long)
 
     dataset = Data.TensorDataset(X, y)
-    data_iter = Data.DataLoader(dataset=dataset, batch_size=4, shuffle=True)
+    data_iter = Data.DataLoader(dataset=dataset, batch_size=32, shuffle=True)
 
     model = DeepFM(num_cols, cat_cols, cat_tuple_list)
     # print(model)
     loss = nn.CrossEntropyLoss()
-    optimizer = optim.Adam(model.parameters(), lr=0.001)
+    optimizer = optim.Adam(model.parameters(), lr=0.0005)
     # print(model)
-    train(model, data_iter, device, optimizer, loss, epochs=20)
+    train(model, data_iter, device, optimizer, loss, epochs=100)

@@ -1,12 +1,10 @@
 import torch
 import torch.nn as nn
 
+
 def FM(x): # x:(batch, feature_num, emb_len)
-    # print(x.shape)
     left = torch.square(torch.sum(x, dim=1, keepdim=True)) # (batch, 1, emb_len)
     right = torch.sum(torch.square(x), dim=1, keepdim=True) # (batch, 1, emb_len)
-    # print(left.shape)
-    # print(right.shape)
     res = 0.5 * torch.sum((left - right), dim=2) # (batch, 1)
     return res
 
@@ -82,6 +80,8 @@ class DeepFM(nn.Module):
         deep_output = self.deep_final_linear(deep_output)
 
         # 总和
-        return self.final_linear(torch.cat([linear_output, fm_output, deep_output], dim=1))
+        output = self.sigmoid(linear_output + fm_output + deep_output)
+        return torch.cat([output, 1-output], dim=1)
+        # return self.final_linear(torch.cat([linear_output, fm_output, deep_output], dim=1))
 
 
