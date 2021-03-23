@@ -8,7 +8,7 @@ from collections import namedtuple
 from sklearn.preprocessing import LabelEncoder
 from nfm import NFM
 import matplotlib.pyplot as plt
-
+from torchkeras import summary
 
 def load_data():
     # file_path = '../../DeepRecommendationModel/code/data/criteo_sample.txt'
@@ -93,7 +93,8 @@ if __name__ == '__main__':
     data_iter = Data.DataLoader(dataset=dataset, batch_size=128, shuffle=True)
 
     model = NFM(num_cols, cat_cols, cat_tuple_list)
-    # print(model)
+    # print(summary(model, input_shape=(X.shape[1], )))
+    # # print(model)
     loss = nn.CrossEntropyLoss()
     optimizer = optim.Adam(model.parameters(), lr=0.0001)
     # print(model)
