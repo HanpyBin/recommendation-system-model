@@ -67,5 +67,7 @@ class WideDeep(nn.Module):
         deep_output = self.deep_final_linear(deep_output)
 
         # 结合wide&deep
-        output = self.sigmoid(self.final_linear(torch.cat([wide_output, deep_output], dim=1)))
+        output = self.sigmoid(wide_output+deep_output)
+        output = torch.cat([output, 1-output], dim=1)
+        # output = self.sigmoid(self.final_linear(torch.cat([wide_output, deep_output], dim=1)))
         return output

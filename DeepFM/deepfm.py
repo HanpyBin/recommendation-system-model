@@ -36,10 +36,10 @@ class DeepFM(nn.Module):
             self.fm_embeddings.append(nn.Embedding(fc.vocab_size, emb_len))
 
         # DNN
-        self.deep_linear1 = nn.Linear(self.deep_input_dim, 1024)
-        self.deep_linear2 = nn.Linear(1024, 512)
-        self.deep_linear3 = nn.Linear(512, 256)
-        self.deep_final_linear = nn.Linear(256, 1)
+        self.deep_linear1 = nn.Linear(self.deep_input_dim, 128)
+        self.deep_linear2 = nn.Linear(128, 64)
+        self.deep_linear3 = nn.Linear(64, 32)
+        self.deep_final_linear = nn.Linear(32, 1)
         self.relu = nn.ReLU()
         self.sigmoid = nn.Sigmoid()
         self.dropout1 = nn.Dropout(0.5)
@@ -50,6 +50,7 @@ class DeepFM(nn.Module):
         self.final_linear = nn.Linear(3, 2)
 
     def forward(self, x):
+        # print(self.deep_input_dim)
         cat_x = x[:, :self.cat_col_len]
         num_x = x[:, self.cat_col_len:]
 

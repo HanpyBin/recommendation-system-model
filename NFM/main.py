@@ -6,7 +6,9 @@ import numpy as np
 import pandas as pd
 from collections import namedtuple
 from sklearn.preprocessing import LabelEncoder
-from deepfm import DeepFM
+from nfm import NFM
+import matplotlib.pyplot as plt
+
 
 def load_data():
     # file_path = '../../DeepRecommendationModel/code/data/criteo_sample.txt'
@@ -37,10 +39,22 @@ def get_cat_tuple_list(df, cat_cols):
     cat_tuple_list = [cat_tuple(name=col, vocab_size=df[col].nunique()) for col in cat_cols]
     return cat_tuple_list
 
+def plot_loss_accu(loss_his, accu_his, epochs):
+    plt.plot(list(range(1, epochs+1)), loss_his)
+    plt.xlabel('epoch')
+    plt.ylabel('loss')
+    plt.title('loss iteration')
+    plt.savefig('loss iteration.png', dpi=300)
+    plt.cla()
+    plt.plot(list(range(1, epochs+1)), accu_his)
+    plt.xlabel('epoch')
+    plt.ylabel('accuracy/%')
+    plt.title('accuracy iteration')
+    plt.savefig('accuracy iteration.png', dpi=300)
 
 def train(model, data_iter, device, optimizer, loss, epochs=20):
     model = model.to(device)
-
+    loss_his, accu_his = [], []
     for epoch in range(epochs):
         train_l_sum, train_acc_sum, n = 0.0, 0.0, 0
         for X, y in data_iter:
@@ -56,8 +70,12 @@ def train(model, data_iter, device, optimizer, loss, epochs=20):
 
             train_l_sum += l.item()
             train_acc_sum += (outputs.argmax(dim=1) == y).sum().item()
+
             n += y.shape[0]
+        accu_his.append(train_acc_sum*100/n)
+        loss_his.append(train_l_sum/n)
         print('epoch %d loss %f train acc %f' % (epoch + 1, train_l_sum / n, train_acc_sum / n))
+    plot_loss_accu(loss_his, accu_his, epochs)
 
 if __name__ == '__main__':
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -74,9 +92,9 @@ if __name__ == '__main__':
     dataset = Data.TensorDataset(X, y)
     data_iter = Data.DataLoader(dataset=dataset, batch_size=128, shuffle=True)
 
-    model = DeepFM(num_cols, cat_cols, cat_tuple_list)
+    model = NFM(num_cols, cat_cols, cat_tuple_list)
     # print(model)
     loss = nn.CrossEntropyLoss()
-    optimizer = optim.Adam(model.parameters(), lr=0.001)
+    optimizer = optim.Adam(model.parameters(), lr=0.0001)
     # print(model)
-    train(model, data_iter, device, optimizer, loss, epochs=100)
+    train(model, data_iter, device, optimizer, loss, epochs=200)
