@@ -27,3 +27,6 @@ def net(x):
 
 ## NFM
 &emsp;将数据换为完整数据集并保留了迭代结果，具体可见NFM文件夹，可直接运行main文件。
+
+## DIN
+&emsp;可直接运行main.py文件
