@@ -4,7 +4,6 @@ import torch.nn as nn
 class WideDeep(nn.Module):
     def __init__(self, num_cols, cat_cols, cat_tuple_list, emb_len=4):
         super(WideDeep, self).__init__()
-        # TODO: 对啊，为什么tf的代码里面，embedding不是共享的？艹，那我这里怎么写？
 
         self.cat_cols = cat_cols
         self.num_cols = num_cols
@@ -56,7 +55,7 @@ class WideDeep(nn.Module):
         wide_cat_output = wide_cat_input[0]
         for i in range(1, len(wide_cat_input)):
             wide_cat_output += wide_cat_input[i]
-        wide_output = wide_cat_output + wide_cat_output
+        wide_output = wide_num_output + wide_cat_output
 
         ## deep层
         for i in range(self.cat_col_len):
